@@ -1,0 +1,40 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        container_name: laravel_dev
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/var/www
+        depends_on:
+            - db
+        environment:
+            - DB_HOST=db
+        networks:
+            - laravel_dev_net
+        command: php artisan serve --host=0.0.0.0
+
+    db:
+        image: mysql:8.0
+        container_name: mysql_dev
+        environment:
+            MYSQL_DATABASE: laravel
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_PASSWORD: password
+            MYSQL_USER: laravel
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - laravel_dev_net
+
+networks:
+    laravel_dev_net:
+        driver: bridge
+
+volumes:
+    mysql_data:
+        external: false

@@ -13,9 +13,7 @@ Esta API proporciona endpoints para la gestión de citas médicas, incluyendo pr
 
 ## Requisitos
 
--   PHP 8.4
--   Composer
--   MySQL
+-   Docker
 
 ## Instalación
 
@@ -25,28 +23,22 @@ Esta API proporciona endpoints para la gestión de citas médicas, incluyendo pr
 git clone https://github.com/nicortezm/citas-medicas
 ```
 
-2. Instalar dependencias:
-
-```bash
-composer install
-```
-
-3. Copiar .env.example a .env y configurar la base de datos:
+2. Copiar .env.example a .env y configurar la base de datos (se sugiere dejar igual, es un ambiente de desarrollo):
 
 ```bash
 cp .env.example .env
 ```
 
-4. Generar clave de aplicación:
+3. Iniciar proyecto:
 
 ```bash
-php artisan key:generate
+docker compose up -d
 ```
 
 5. Ejecutar migraciones:
 
 ```bash
-php artisan migrate:fresh --seed
+ docker-compose exec app php artisan migrate --seed
 ```
 
 ## Autenticación
