@@ -1,66 +1,226 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Documentación API de Citas Médicas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Esta API proporciona endpoints para la gestión de citas médicas, incluyendo programación, procesamiento de pagos y autenticación. Construida con Laravel 11, implementa un sistema completo de citas médicas con control de acceso basado en roles.
 
-## About Laravel
+## Tabla de Contenidos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   [Requisitos](#requisitos)
+-   [Instalación](#instalación)
+-   [Autenticación](#autenticación)
+-   [Endpoints de la API](#endpoints-de-la-api)
+-   [Estructura del Proyecto](#estructura-del-proyecto)
+-   [Manejo de Errores](#manejo-de-errores)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requisitos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   PHP 8.4
+-   Composer
+-   MySQL
 
-## Learning Laravel
+## Instalación
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. Clonar el repositorio:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+git clone https://github.com/nicortezm/citas-medicas
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. Instalar dependencias:
 
-## Laravel Sponsors
+```bash
+composer install
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+3. Copiar .env.example a .env y configurar la base de datos:
 
-### Premium Partners
+```bash
+cp .env.example .env
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+4. Generar clave de aplicación:
 
-## Contributing
+```bash
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. Ejecutar migraciones:
 
-## Code of Conduct
+```bash
+php artisan migrate:fresh --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Autenticación
 
-## Security Vulnerabilities
+La API utiliza Laravel Sanctum para la autenticación. Todas las rutas autenticadas requieren un token Bearer en el encabezado Authorization.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Endpoints de Autenticación
 
-## License
+#### Registrar Nuevo Paciente
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+POST /api/auth/register
+```
+
+Parámetros del cuerpo:
+
+-   `name` (requerido): string
+-   `email` (requerido): string, email válido
+-   `password` (requerido): string, mínimo 8 caracteres
+-   `password_confirmation` (requerido): string
+
+#### Iniciar Sesión
+
+```
+POST /api/auth/login
+```
+
+Parámetros del cuerpo:
+
+-   `email` (requerido): string
+-   `password` (requerido): string
+
+#### Cerrar Sesión
+
+```
+POST /api/auth/logout
+```
+
+Requiere token de autenticación
+
+## Endpoints de la API
+
+### Citas
+
+#### Crear Cita
+
+```
+POST /api/appointments
+```
+
+Encabezados requeridos:
+
+-   Authorization: Bearer {token}
+
+Parámetros del cuerpo:
+
+-   `datetime` (requerido): fecha (Y-m-d H:i)
+-   `doctor_email` (requerido): string
+
+#### Ver Citas del Día (Solo Médicos)
+
+```
+GET /api/appointments/view-appointments
+```
+
+Encabezados requeridos:
+
+-   Authorization: Bearer {token}
+
+#### Confirmar Cita (Solo Médicos)
+
+```
+POST /api/appointments/confirm-appointment
+```
+
+Encabezados requeridos:
+
+-   Authorization: Bearer {token}
+
+Parámetros del cuerpo:
+
+-   `appointment_id` (requerido): entero
+
+### Pagos
+
+#### Obtener Enlace de Pago
+
+```
+GET /api/payments/link/{appointment_id}
+```
+
+Encabezados requeridos:
+
+-   Authorization: Bearer {token}
+
+#### Callbacks de Pago
+
+```
+GET /api/payments/callback-success
+GET /api/payments/callback-failure
+```
+
+### Gestión de Médicos
+
+#### Crear Médico (Solo Admin)
+
+```
+POST /api/create-doctor
+```
+
+Encabezados requeridos:
+
+-   Authorization: Bearer {token}
+
+Parámetros del cuerpo:
+
+-   `name` (requerido): string
+-   `email` (requerido): string
+-   `password` (requerido): string
+
+## Estructura del Proyecto
+
+```
+app/
+├── Casts/            # Clases de conversión personalizadas
+├── Enums/            # Clases de enumeración
+├── Exceptions/       # Manejadores de excepciones personalizados
+├── Helpers/          # Funciones auxiliares
+├── Http/
+│   ├── Controllers/  # Controladores de la API
+│   └── Requests/     # Requests para validación
+├── Models/           # Modelos Eloquent
+├── Observers/        # Observadores de modelos
+├── Policies/         # Políticas de autorización
+├── Providers/        # Proveedores de servicios
+└── Services/         # Servicios de lógica de negocio
+```
+
+## Manejo de Errores
+
+La API devuelve códigos de estado HTTP estándar:
+
+-   200: Éxito
+-   201: Creado
+-   400: Solicitud Incorrecta
+-   401: No Autorizado
+-   403: Prohibido
+-   404: No Encontrado
+-   500: Error del Servidor
+
+Las respuestas de error siguen este formato:
+
+```json
+{
+    "message": "Mensaje de error aquí",
+    "errors": {
+        "campo": ["Descripción del error"]
+    }
+}
+```
+
+## Reglas de Validación
+
+-   Las citas solo pueden programarse entre las 7:00-12:00 y 14:00-18:00
+-   No se pueden programar citas en horarios ya ocupados
+-   Las citas deben ser pagadas antes de la confirmación
+-   Los médicos solo pueden ver y gestionar sus propias citas
+-   Los pacientes solo pueden ver y gestionar sus propias citas
+
+## Medidas de Seguridad
+
+-   Autenticación de API usando Laravel Sanctum
+-   Middleware CORS habilitado
+-   Validación de entrada usando Form Requests
+-   Control de acceso basado en roles
+-   Prevención de inyección SQL a través del query builder de Laravel
+-   Protección XSS a través de las características de seguridad incorporadas de Laravel
